@@ -157,8 +157,9 @@ export function ChessApp() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-6 text-slate-50">
       <div className="w-full max-w-md">
-        <section className="rounded-[2rem] border border-white/10 bg-slate-950/60 p-3 shadow-[0_20px_80px_rgba(15,23,42,0.55)] backdrop-blur">
-          <div className="grid grid-cols-8 overflow-hidden rounded-[1.5rem] border border-white/10">
+        <section className="rounded-[2.2rem] border border-amber-100/10 bg-[linear-gradient(145deg,rgba(101,67,33,0.34),rgba(15,23,42,0.9))] p-3 shadow-[0_24px_90px_rgba(15,23,42,0.6)] backdrop-blur">
+          <div className="rounded-[1.75rem] border border-amber-100/10 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_45%),linear-gradient(145deg,rgba(129,88,52,0.85),rgba(52,31,18,0.96))] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),inset_0_-8px_16px_rgba(0,0,0,0.35),0_16px_36px_rgba(0,0,0,0.35)]">
+            <div className="grid grid-cols-8 overflow-hidden rounded-[1.25rem] border border-black/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
             {game.board.map((row, rowIndex) =>
               row.map((piece, colIndex) => {
                 const isLight = (rowIndex + colIndex) % 2 === 0;
@@ -185,19 +186,39 @@ export function ChessApp() {
                       handleSquarePress({ row: rowIndex, col: colIndex })
                     }
                     className={[
-                      'relative aspect-square flex items-center justify-center text-[clamp(1.7rem,8vw,2.35rem)] transition-all duration-150',
-                      isLight ? 'bg-[#f4e2c2] text-slate-900' : 'bg-[#8f5e3b] text-white',
+                      'relative aspect-square flex items-center justify-center overflow-hidden text-[clamp(1.7rem,8vw,2.35rem)] transition-all duration-150',
+                      getSquareClasses(isLight),
                       isSelected ? 'ring-4 ring-sky-400/80 ring-inset' : '',
                       playerCanMove ? 'active:scale-[0.98]' : '',
                     ].join(' ')}
                   >
+                    <span
+                      aria-hidden="true"
+                      className={[
+                        'pointer-events-none absolute inset-0 opacity-90',
+                        isLight
+                          ? 'bg-[linear-gradient(145deg,rgba(255,255,255,0.2),transparent_36%,rgba(0,0,0,0.18))]'
+                          : 'bg-[linear-gradient(145deg,rgba(255,224,188,0.16),transparent_34%,rgba(0,0,0,0.28))]',
+                      ].join(' ')}
+                    />
+
                     {rowIndex === 7 ? (
-                      <span className="pointer-events-none absolute bottom-1 right-1 text-[10px] font-semibold uppercase tracking-wide text-black/50">
+                      <span
+                        className={[
+                          'pointer-events-none absolute bottom-1 right-1 text-[10px] font-semibold uppercase tracking-wide',
+                          isLight ? 'text-black/50' : 'text-white/55',
+                        ].join(' ')}
+                      >
                         {files[colIndex]}
                       </span>
                     ) : null}
                     {colIndex === 0 ? (
-                      <span className="pointer-events-none absolute left-1 top-1 text-[10px] font-semibold text-black/45">
+                      <span
+                        className={[
+                          'pointer-events-none absolute left-1 top-1 text-[10px] font-semibold',
+                          isLight ? 'text-black/45' : 'text-white/50',
+                        ].join(' ')}
+                      >
                         {8 - rowIndex}
                       </span>
                     ) : null}
@@ -211,21 +232,42 @@ export function ChessApp() {
                     ) : null}
 
                     {piece ? (
-                      <span
-                        className={[
-                          'relative drop-shadow-[0_6px_10px_rgba(15,23,42,0.45)]',
-                          piece.color === 'white'
-                            ? 'text-slate-50'
-                            : 'text-slate-950',
-                        ].join(' ')}
-                      >
-                        {getPieceGlyph(piece)}
+                      <span className="relative inline-flex items-center justify-center">
+                        <span
+                          aria-hidden="true"
+                          className={[
+                            'absolute translate-y-1 scale-[1.04] opacity-45 blur-[1px]',
+                            piece.color === 'white'
+                              ? 'text-slate-700/70'
+                              : 'text-black/60',
+                          ].join(' ')}
+                        >
+                          {getPieceGlyph(piece)}
+                        </span>
+                        <span
+                          aria-hidden="true"
+                          className={[
+                            'absolute -translate-x-[1px] -translate-y-[2px] opacity-80',
+                            piece.color === 'white'
+                              ? 'text-white/80'
+                              : 'text-slate-400/40',
+                          ].join(' ')}
+                        >
+                          {getPieceGlyph(piece)}
+                        </span>
+                        <span
+                          className="relative select-none"
+                          style={getPieceStyle(piece)}
+                        >
+                          {getPieceGlyph(piece)}
+                        </span>
                       </span>
                     ) : null}
                   </button>
                 );
               }),
             )}
+            </div>
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-3">
@@ -448,4 +490,28 @@ function OverlayCard({ children }: { children: React.ReactNode }) {
       </div>
     </div>
   );
+}
+
+function getSquareClasses(isLight: boolean): string {
+  return isLight
+    ? 'bg-[linear-gradient(145deg,#f4e7cf,#ddbf92_60%,#b88e62)] shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-3px_8px_rgba(104,70,36,0.35)]'
+    : 'bg-[linear-gradient(145deg,#a46d47,#7d4c2d_60%,#4f2f1b)] shadow-[inset_0_1px_0_rgba(255,230,205,0.14),inset_0_-4px_9px_rgba(0,0,0,0.35)]';
+}
+
+function getPieceStyle(piece: Piece): React.CSSProperties {
+  if (piece.color === 'white') {
+    return {
+      color: '#fffaf1',
+      textShadow:
+        '0 1px 0 rgba(255,255,255,0.95), 0 3px 0 rgba(203,213,225,0.95), 0 8px 12px rgba(15,23,42,0.45)',
+      filter: 'drop-shadow(0 4px 8px rgba(15,23,42,0.25))',
+    };
+  }
+
+  return {
+    color: '#111827',
+    textShadow:
+      '0 1px 0 rgba(148,163,184,0.55), 0 3px 0 rgba(15,23,42,0.95), 0 8px 12px rgba(0,0,0,0.45)',
+    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.35))',
+  };
 }
